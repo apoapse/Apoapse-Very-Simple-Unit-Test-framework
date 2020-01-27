@@ -5,6 +5,8 @@ Since this system is extremely simple, there is no fancy features like build int
 
 Moreover, this allows to use the library to make feature tests. For instance, the run tests function can be called after the program has initialized the systems required by one test.
 
+![Unit Test result on a console](https://apoapse.space/img/apoapse_unit_test.png)
+
 ## How to use
 To create tests, just include UnitTest.hpp on a cpp file and use the following syntax to define the tests. There is no limit of the number of tests per cpp file and there is no limit of cpp files containing tests per project.
 ### Define tests
