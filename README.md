@@ -15,7 +15,7 @@ UNIT_TEST("TestCategory1:RandomNumber")
 {
 	int result = RandomNumber(10, 200);
 	
-	CHECK(result > 10);		// Simple check macro
+	CHECK(result > 10);	// Simple check macro
 	CHECK(result < 200);	// Multiple checks can be used on a single test
 	
 } UNIT_TEST_END
@@ -24,7 +24,7 @@ UNIT_TEST("TestCategory1:RandomPassword")
 {
 	std::string password = GenerateRandomPassword();
 	
-	REQUIRE(password.length() >= 8);							// Unlike a CHECK, a REQUIRE stop the code execution if it fail
+	REQUIRE(password.length() >= 8);				// Unlike a CHECK, a REQUIRE stop the code execution if it fail
 	CHECK_PRINT(password != "admin", "Password not allowed");	// CHECK_PRINT regular check but print a custom debug message
 	
 } UNIT_TEST_END
