@@ -31,7 +31,11 @@ UNIT_TEST("TestCategory1:RandomPassword")
 ```
 
 ### Run tests
-ALORS.Hrgseresfzseerse _zZDDDDDDDDDDD_
+To run the tests, just use the RunTests function by providing an output stream object like std::cout to print on the console or std::ofstream to write into a file.
+Custom output stream objects (inheriting from std::ostream) can of course be used.
+
+In the case of using the console as output, prints coloring is supported on Windows.
+
 ```cpp
-UnitTestsManager::GetInstance().RunTests();
+UnitTestsManager::GetInstance().RunTests(std::cout);	// Print the results on the console
 ```

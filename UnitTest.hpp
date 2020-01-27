@@ -76,11 +76,11 @@ class UnitTestsManager
 	std::vector<UnitTest> m_registeredUnitTests;
 	TestExec m_currentTest;
 
-	enum class ConsoleColors
+	enum class TestResult
 	{
 		DEFAULT,
-		GREEN,
-		RED
+		SUCCESS,
+		FAILURE
 	};
 	
 public:
@@ -88,16 +88,18 @@ public:
 	UnitTestsManager(UnitTestsManager const&) = delete;
 	void operator=(UnitTestsManager const&) = delete;
 
-	void RunTests(const std::string& testsPath = "")
+	void RunTests(std::ostream& output, const std::string& testsPath = "")
 	{
+		const bool isConsole = (output.rdbuf() == std::cout.rdbuf());
+
+		const auto toExecuteTestsCount = static_cast<int>(m_registeredUnitTests.size());
 		int successCount = 0;
 		int errorsCount = 0;
-		const auto toExecuteTestsCount = static_cast<int>(m_registeredUnitTests.size());
 
 		SortTests();
 
-		Log("EXECUTING " + std::to_string(toExecuteTestsCount) + " UNIT TESTS...");
-
+		output << "EXECUTING " << toExecuteTestsCount << " UNIT TESTS..." << '\n';
+		
 		for (const UnitTest& test : m_registeredUnitTests)
 		{
 			std::string exceptionError;
@@ -107,31 +109,31 @@ public:
 
 			if (testResult && m_currentTest.errorMsgs.empty())
 			{
-				Log("TEST " + test.GetFullName() + " -> SUCCESS", ConsoleColors::GREEN);
+				Write(output, "TEST " + test.GetFullName() + " -> SUCCESS", isConsole, TestResult::SUCCESS);
 				++successCount;
 			}
 			else
 			{
-				Log("TEST " + test.GetFullName() + " -> FAILURE", ConsoleColors::RED);
+				Write(output, "TEST " + test.GetFullName() + " -> FAILURE", isConsole, TestResult::FAILURE);
 
 				for (const std::string& errorMsg : m_currentTest.errorMsgs)
 				{
-					Log("\t " + errorMsg, ConsoleColors::RED);
+					Write(output, "\t " + errorMsg, isConsole, TestResult::FAILURE);
 				}
 
 				if (!exceptionError.empty())
 				{
-					Log("\t Exception triggered: " + exceptionError, ConsoleColors::RED);
+					Write(output, "\t Exception triggered: " + exceptionError, isConsole, TestResult::FAILURE);
 				}
 				
 				++errorsCount;
 			}
 		}
 
-		const ConsoleColors resultColor = (errorsCount == 0) ? ConsoleColors::DEFAULT : ConsoleColors::RED;
-		Log("EXECUTED " + std::to_string(toExecuteTestsCount) + " UNIT TESTS. " + std::to_string(successCount) + " successful, " + std::to_string(errorsCount) + " failed", resultColor);
+		const TestResult finalResult = (errorsCount == 0) ? TestResult::SUCCESS : TestResult::FAILURE;
+		Write(output, "EXECUTED " + std::to_string(toExecuteTestsCount) + " UNIT TESTS. " + std::to_string(successCount) + " successful, " + std::to_string(errorsCount) + " failed", isConsole, finalResult);
 	}
-
+	
 	void RegisterTest(const UnitTest& test)
 	{
 		m_registeredUnitTests.push_back(test);
@@ -180,25 +182,31 @@ public:
 	}
 
 private:
-	static void Log(const std::string& msg, ConsoleColors color = ConsoleColors::DEFAULT)
+	static void Write(std::ostream& output, const std::string& msg, bool isConsole, TestResult result = TestResult::DEFAULT)
 	{
-#ifdef _WIN32
-		switch (color)
+		if (isConsole)
 		{
-		case ConsoleColors::GREEN:
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-			break;
-		case ConsoleColors::RED:
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY);
-			break;
-		}
-#endif
-
-		std::cout << msg << '\n';
-
 #ifdef _WIN32
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);	// Reset to default color
+			switch (result)
+			{
+			case TestResult::SUCCESS:
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+				break;
+			case TestResult::FAILURE:
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY);
+				break;
+			}
 #endif
+		}
+
+		output << msg << '\n';
+
+		if (isConsole)
+		{
+#ifdef _WIN32
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);	// Reset to default color
+#endif
+		}
 	}
 	
 	void SortTests()
