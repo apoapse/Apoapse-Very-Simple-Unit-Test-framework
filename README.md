@@ -7,6 +7,8 @@ Moreover, this allows to use the library to make feature tests. For instance, th
 
 ![Unit Test result on a console](https://apoapse.space/img/apoapse_unit_test.png)
 
+[🚀 Find out more about Apoapse](https://apoapse.space/) | [📥 Receive all news and updates directly to your inbox](https://apoapse.space/newsletter-opt-in/)
+
 ## How to use
 To create tests, just include UnitTest.hpp on a cpp file and use the following syntax to define the tests. There is no limit of the number of tests per cpp file and there is no limit of cpp files containing tests per project.
 ### Define tests
